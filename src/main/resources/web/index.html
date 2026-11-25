@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LiveMaps designer</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+  <h1>LiveMaps <span>designer</span></h1>
+  <div id="who"></div>
+  <button id="logout" class="ghost" hidden>Log out</button>
+</header>
+
+<main id="login" hidden>
+  <div class="card center">
+    <h2 id="loginTitle">Not logged in</h2>
+    <p>Run <code>/livemap web</code> in Minecraft and click the link you get. Links work once and expire quickly.</p>
+  </div>
+</main>
+
+<main id="app" hidden>
+  <aside class="panel" id="controls">
+
+    <div class="group">
+      <h3>Source</h3>
+      <div class="seg" id="sourceTabs"></div>
+      <div id="sqTargetRow" hidden>
+        <label>Map <select id="target"></select></label>
+      </div>
+      <div id="bmUpdateRow" hidden>
+        <label>Action
+          <select id="updateId">
+            <option value="0">Create a new map</option>
+          </select>
+        </label>
+      </div>
+      <p class="hint" id="sourceHint"></p>
+    </div>
+
+    <div class="group">
+      <h3>Size <small id="sizeLimits"></small></h3>
+      <div class="row">
+        <label>Width <input type="number" id="width" min="1" max="8" value="2"></label>
+        <label>Height <input type="number" id="height" min="1" max="8" value="2"></label>
+        <div class="total"><b id="total">4</b> maps</div>
+      </div>
+    </div>
+
+    <!-- BlueMap interactive controls -->
+    <div class="group" id="bmControls">
+      <h3>BlueMap view</h3>
+      <p class="hint">Fly around directly in BlueMap on the right. Use BlueMap's menu for <b>Perspective / Flat / Free Flight</b>, <b>Day / Night</b> lighting, caves, or markers. Frame your shot inside the box, then click <b>Take Screenshot</b>.</p>
+      <div class="row">
+        <button id="bmJumpMe" class="ghost">Jump to my position</button>
+      </div>
+      <label class="hint-label">Jump to a BlueMap link
+        <div class="row">
+          <input type="text" id="bmUrl" placeholder="https://…/#world:120:64:-30:…">
+          <button id="bmImport" class="ghost">Go</button>
+        </div>
+      </label>
+      <p class="hint"><a id="bmOpen" href="#" target="_blank" rel="noopener" hidden>Open BlueMap in a new tab</a></p>
+    </div>
+
+    <!-- squaremap flat controls -->
+    <div class="group" id="sqControls" hidden>
+      <h3>Camera (Top-down)</h3>
+      <div class="row">
+        <label>X <input type="number" id="x" step="1"></label>
+        <label>Z <input type="number" id="z" step="1"></label>
+      </div>
+      <div class="row">
+        <button id="useMe" class="ghost">Use my position</button>
+      </div>
+      <label class="slider">Rotation <output id="yawOut"></output>
+        <input type="range" id="yaw" min="0" max="360" step="1" value="0"></label>
+      <label class="slider">Zoom <output id="zoomOut"></output>
+        <input type="range" id="zoom" min="0" max="1000" step="1" value="500"></label>
+    </div>
+
+    <div class="group">
+      <h3>Look</h3>
+      <div id="sqLookRow" hidden>
+        <label class="slider">Terrain shading <output id="shadingOut"></output>
+          <input type="range" id="shading" min="0" max="100" value="60"></label>
+      </div>
+      <div class="row">
+        <label>Dithering <select id="dither">
+          <option value="FLOYD_STEINBERG">Floyd–Steinberg (best)</option>
+          <option value="ORDERED">Ordered</option>
+          <option value="NONE">None (flat colours)</option></select></label>
+        <label id="sqSmoothRow" hidden>Smoothing <select id="supersample">
+          <option value="1">Off</option><option value="2" selected>2×</option><option value="3">3×</option></select></label>
+      </div>
+      <div class="row" id="refreshRow">
+        <label>Refresh interval <select id="refreshPreset">
+          <option value="">Server default</option>
+          <option value="30">30 seconds</option>
+          <option value="60">1 minute</option>
+          <option value="300">5 minutes</option>
+          <option value="600">10 minutes</option>
+          <option value="1800">30 minutes</option>
+          <option value="3600">1 hour</option>
+          <option value="custom">Custom (seconds)…</option>
+        </select></label>
+        <label id="refreshCustomRow" hidden>Seconds <input type="number" id="refreshSec" min="5" max="86400" step="1" value="600"></label>
+      </div>
+      <p class="hint" id="refreshHint"></p>
+      <label class="check"><input type="checkbox" id="palette" checked> Preview with the in-game map colours</label>
+    </div>
+  </aside>
+
+  <section id="stageWrap">
+    <div id="stage">
+      <div id="bmWrap" hidden>
+        <iframe id="bmFrame" title="Embedded BlueMap"></iframe>
+        <div id="bmOverlay">
+          <div id="cropBox">
+            <div id="cropBadge"></div>
+            <div id="cropGrid" hidden></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="frame" hidden>
+        <img id="preview" alt="Preview of the in-game map" draggable="false">
+        <div id="grid" hidden></div>
+      </div>
+
+      <div id="toolbar">
+        <button id="togglePanel" class="ghost">Hide controls</button>
+        <label class="check"><input type="checkbox" id="showGrid"> Map borders</label>
+        <button id="captureBtn" class="primary" hidden>Take Screenshot</button>
+        <button id="retakeBtn" class="ghost" hidden>Back to BlueMap</button>
+      </div>
+
+      <div id="stageMsg" hidden>Loading…</div>
+    </div>
+
+    <div id="summary">
+      <div id="summaryMain">
+        <div id="costLine"></div>
+        <ul id="issues"></ul>
+        <label class="check" id="confirmRow" hidden><input type="checkbox" id="confirm"> I understand this is a large map and want it anyway</label>
+      </div>
+      <div id="summaryAct">
+        <span id="createMsg"></span>
+        <button id="create" class="primary">Create live map</button>
+      </div>
+      <div id="previewInfo" class="hint"></div>
+      <p class="hint" id="howto">You get a kit item. Put an empty item frame on every spot the map will cover (wall, floor or ceiling),
+        then right-click the top-left frame with the kit.</p>
+    </div>
+  </section>
+</main>
+<script src="/app.js"></script>
+</body>
+</html>

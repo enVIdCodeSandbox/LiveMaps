@@ -1,0 +1,31 @@
+name: LiveMaps
+version: '${version}'
+main: dev.etran.livemaps.LiveMapsPlugin
+api-version: '1.20'
+description: Item-frame maps that follow BlueMap and squaremap in real time.
+author: etran
+softdepend: [BlueMap, squaremap]
+commands:
+  livemap:
+    description: Create and manage live maps
+    usage: /livemap <web|create|give|list|info|delete|refresh|sources|reload>
+    aliases: [lm, livemaps]
+permissions:
+  livemaps.use:
+    description: Use the web app, place live map kits and use the Designer
+    default: true
+  livemaps.craft:
+    description: Craft the Live Map Designer
+    default: true
+  livemaps.command.create:
+    description: Create live maps directly with /livemap create
+    default: op
+  livemaps.admin:
+    description: Give, delete, refresh and list all live maps, reload the plugin
+    default: op
+  livemaps.bypass.cost:
+    description: Create live maps without paying the map cost
+    default: op
+  livemaps.bypass.limits:
+    description: Ignore size and count limits
+    default: op

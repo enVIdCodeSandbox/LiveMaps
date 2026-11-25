@@ -1,0 +1,10 @@
+build/
+dist/
+.gradle/
+.kotlin/
+*.iml
+.idea/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
